@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Book Notes</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Book Notes</h1>
+
+    <!-- Form to add new book -->
+    <form method="POST" action="/add" class="book-form" aria-label="Add a new book">
+      <div class="form-row">
+        <input
+          type="text"
+          name="title"
+          placeholder="Title (required)"
+          required
+          autocomplete="off"
+          aria-required="true"
+          aria-label="Book Title"
+        />
+        <input
+          type="text"
+          name="author"
+          placeholder="Author"
+          autocomplete="off"
+          aria-label="Author"
+        />
+      </div>
+      <div class="form-row">
+        <input
+          type="date"
+          name="date_read"
+          placeholder="Date Read"
+          aria-label="Date when the book was read"
+        />
+        <input
+          type="number"
+          name="rating"
+          min="1"
+          max="10"
+          placeholder="Rating (1-10)"
+          aria-label="Book Rating from 1 to 10"
+        />
+      </div>
+      <textarea
+        name="notes"
+        placeholder="Your notes about the book"
+        rows="4"
+        aria-label="Personal notes about the book"
+      ></textarea>
+      <button type="submit">Add Book</button>
+    </form>
+
+    <!-- Sorting options -->
+    <h2 id="sortHeading">Sort By:</h2>
+    <nav class="sort-nav" aria-labelledby="sortHeading" role="navigation">
+      <a href="/?sort=title" class="sort-link" role="link">Title</a>
+      <a href="/?sort=rating" class="sort-link" role="link">Rating</a>
+      <a href="/?sort=date_added" class="sort-link" role="link">Recently Added</a>
+    </nav>
+
+    <!-- Book list -->
+    <ul class="book-list" aria-live="polite" aria-label="List of books">
+      <% if (books.length === 0) { %>
+        <li class="no-books-message">No books found. Add your first book above!</li>
+      <% } %>
+
+      <% books.forEach(book => { %>
+        <li class="book-item" tabindex="0" aria-label="Book: <%= book.title %> by <%= book.author || 'Unknown' %>">
+          <img
+            src="<%= book.cover_url %>"
+            alt="Cover of <%= book.title %>"
+            class="book-cover"
+            loading="lazy"
+            width="100"
+            height="150"
+          />
+
+          <div class="book-details">
+            <h3 class="book-title"><%= book.title %></h3>
+            <p><strong>Author:</strong> <%= book.author || 'Unknown' %></p>
+            <p><strong>Rating:</strong> <%= book.rating != null ? book.rating : 'N/A' %> / 10</p>
+            <p><strong>Read on:</strong> <%= book.date_read ? new Date(book.date_read).toISOString().split('T')[0] : 'N/A' %></p>
+            <p class="book-notes"><strong>Notes:</strong> <%= book.notes || 'No notes' %></p>
+          </div>
+
+          <!-- Delete book form -->
+          <form
+            method="POST"
+            action="/<%= book.id %>/delete"
+            class="delete-form"
+            onsubmit="return confirm('Are you sure you want to delete this book?');"
+            aria-label="Delete book <%= book.title %>"
+          >
+            <button type="submit" class="delete-btn" aria-describedby="deleteHint-<%= book.id %>">Delete</button>
+            <span id="deleteHint-<%= book.id %>" class="sr-only">Deletes the book titled <%= book.title %></span>
+          </form>
+        </li>
+      <% }); %>
+    </ul>
+  </div>
+</body>
+</html>
